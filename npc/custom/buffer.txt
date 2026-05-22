@@ -1,0 +1,75 @@
+// =====================================================
+// Solo Buffer — Free support buffs for solo play
+// Located in Prontera, near center
+// =====================================================
+
+prontera,152,190,5	script	Magic Buffer	4_M_WIZARD,{
+	mes "[Magic Buffer]";
+	mes "Greetings, brave solo adventurer!";
+	mes "I can bestow powerful support magic upon you.";
+	next;
+	menu "Full Buff Package",L_FULL,
+		"Offensive Buffs Only",L_OFFENSE,
+		"Defensive Buffs Only",L_DEFENSE,
+		"Remove All Buffs",L_REMOVE,
+		"No thanks",L_END;
+
+L_FULL:
+	// Support buffs
+	sc_start SC_BLESSING,600000,10;
+	sc_start SC_INCREASEAGI,600000,10;
+	sc_start SC_GLORIA,600000,5;
+	sc_start SC_MAGNIFICAT,600000,5;
+	sc_start SC_IMPOSITIO,600000,5;
+	sc_start SC_SUFFRAGIUM,600000,3;
+	// Defensive buffs
+	sc_start SC_ANGELUS,600000,10;
+	sc_start SC_ASSUMPTIO,600000,5;
+	sc_start SC_KYRIE,600000,10;
+	// Healing
+	percentheal 100,100;
+	mes "[Magic Buffer]";
+	mes "Full buff package applied!";
+	mes "Blessing, AGI UP, Gloria, Magnificat,";
+	mes "Imposito Manus, Suffragium,";
+	mes "Angelus, Assumptio, Kyrie Eleison";
+	mes " ";
+	mes "^0000FFDuration: 10 minutes^000000";
+	mes "HP and SP fully restored!";
+	close;
+
+L_OFFENSE:
+	sc_start SC_BLESSING,600000,10;
+	sc_start SC_INCREASEAGI,600000,10;
+	sc_start SC_IMPOSITIO,600000,5;
+	sc_start SC_SUFFRAGIUM,600000,3;
+	percentheal 100,100;
+	mes "[Magic Buffer]";
+	mes "Offensive buffs applied!";
+	mes "Blessing, AGI UP, Imposito, Suffragium";
+	mes "HP and SP fully restored!";
+	close;
+
+L_DEFENSE:
+	sc_start SC_ANGELUS,600000,10;
+	sc_start SC_ASSUMPTIO,600000,5;
+	sc_start SC_KYRIE,600000,10;
+	sc_start SC_GLORIA,600000,5;
+	percentheal 100,100;
+	mes "[Magic Buffer]";
+	mes "Defensive buffs applied!";
+	mes "Angelus, Assumptio, Kyrie, Gloria";
+	mes "HP and SP fully restored!";
+	close;
+
+L_REMOVE:
+	sc_end SC_ALL;
+	mes "[Magic Buffer]";
+	mes "All status effects removed.";
+	close;
+
+L_END:
+	mes "[Magic Buffer]";
+	mes "Return when you need magical support!";
+	close;
+}

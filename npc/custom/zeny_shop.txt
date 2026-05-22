@@ -1,0 +1,51 @@
+// =====================================================
+// Zeny Banker — Free zeny for solo play
+// Located in Prontera, near center
+// =====================================================
+
+prontera,160,185,5	script	Zeny Banker	4_M_BANKER,{
+	mes "[Zeny Banker]";
+	mes "Welcome! As a solo adventurer,";
+	mes "you deserve some financial support.";
+	mes " ";
+	mes "Current Zeny: ^0000FF" + Zeny + "^000000 z";
+	next;
+	menu "Receive 10,000 Zeny",L_10k,
+		"Receive 100,000 Zeny",L_100k,
+		"Receive 1,000,000 Zeny",L_1m,
+		"Receive 10,000,000 Zeny",L_10m,
+		"No thanks",L_END;
+
+L_10k:
+	Zeny += 10000;
+	mes "[Zeny Banker]";
+	mes "Here's ^0000FF10,000 Zeny^000000!";
+	mes "Current balance: ^0000FF" + Zeny + "^000000 z";
+	close;
+
+L_100k:
+	Zeny += 100000;
+	mes "[Zeny Banker]";
+	mes "Here's ^0000FF100,000 Zeny^000000!";
+	mes "Current balance: ^0000FF" + Zeny + "^000000 z";
+	close;
+
+L_1m:
+	Zeny += 1000000;
+	mes "[Zeny Banker]";
+	mes "Here's ^0000FF1,000,000 Zeny^000000!";
+	mes "Current balance: ^0000FF" + Zeny + "^000000 z";
+	close;
+
+L_10m:
+	Zeny += 10000000;
+	mes "[Zeny Banker]";
+	mes "Here's ^0000FF10,000,000 Zeny^000000!";
+	mes "Current balance: ^0000FF" + Zeny + "^000000 z";
+	close;
+
+L_END:
+	mes "[Zeny Banker]";
+	mes "Come back if you need funds!";
+	close;
+}

@@ -1,0 +1,129 @@
+// =====================================================
+// Solo Item Shop — Essential supplies for solo play
+// Located in Prontera, near center
+// =====================================================
+
+prontera,155,185,5	script	Solo Supply Shop	4_F_KAFRA1,{
+	mes "[Solo Supply Shop]";
+	mes "Welcome, adventurer!";
+	mes "I sell all the essential supplies you'll need for solo adventures.";
+	next;
+	menu "Healing Items",L_HEAL,"Buff Items",L_BUFF,"Ammunition",L_AMMO,"Gemstones & Catalysts",L_GEM,"Equipment Upgrade",L_UPGRADE,"Misc Supplies",L_MISC,"Nothing, thanks.",L_END;
+
+L_HEAL:
+	mes "[Solo Supply Shop]";
+	mes "Here are my healing supplies:";
+	close2;
+	callshop "solo_heal_shop",1;
+	end;
+
+L_BUFF:
+	mes "[Solo Supply Shop]";
+	mes "Buff and support items:";
+	close2;
+	callshop "solo_buff_shop",1;
+	end;
+
+L_AMMO:
+	mes "[Solo Supply Shop]";
+	mes "Arrows and ammunition:";
+	close2;
+	callshop "solo_ammo_shop",1;
+	end;
+
+L_GEM:
+	mes "[Solo Supply Shop]";
+	mes "Gemstones and catalysts:";
+	close2;
+	callshop "solo_gem_shop",1;
+	end;
+
+L_UPGRADE:
+	mes "[Solo Supply Shop]";
+	mes "Equipment upgrade materials:";
+	close2;
+	callshop "solo_upgrade_shop",1;
+	end;
+
+L_MISC:
+	mes "[Solo Supply Shop]";
+	mes "Miscellaneous supplies:";
+	close2;
+	callshop "solo_misc_shop",1;
+	end;
+
+L_END:
+	mes "[Solo Supply Shop]";
+	mes "Come back anytime!";
+	close;
+}
+
+// --- Healing Items Shop ---
+-	shop	solo_heal_shop	-1,501:10,502:30,503:300,504:1000,505:3500,547:70,528:700,529:1000,11567:300
+
+// Item IDs:
+// 501  Red Potion       10z
+// 502  Orange Potion    30z
+// 503  Yellow Potion    300z
+// 504  White Potion     1000z
+// 505  Blue Potion      3500z
+// 547  Condensed White  70z
+// 528  Monster Feed     700z
+// 529  Candy            1000z
+// 11567 HP Increase Potion (Small) 300z
+
+// --- Buff Items Shop ---
+-	shop	solo_buff_shop	-1,645:2000,656:3000,657:3000,12016:10000,12215:1000,12208:1000,12210:1000
+
+// Item IDs:
+// 645  Anodyne          2000z
+// 656  Aloevera         3000z
+// 657  Yggdrasil Leaf   3000z
+// 12016 Speed Potion    10000z
+// 12215 Box of Resentment 1000z
+// 12208 Box of Panting  1000z
+// 12210 Box of Gloom    1000z
+
+// --- Ammunition Shop ---
+-	shop	solo_ammo_shop	-1,1750:3,1751:3,1752:3,1753:3,1754:3,1755:3,1770:5,13200:3
+
+// Item IDs:
+// 1750-1755 Various Arrows  3z each
+// 1770 Crystal Arrow    5z
+// 13200 Silver Bullet   3z
+
+// --- Gemstones & Catalysts Shop ---
+-	shop	solo_gem_shop	-1,714:300,715:300,716:300,717:500,7135:500,7136:500,523:100,521:200
+
+// Item IDs:
+// 714  Yellow Gemstone  300z
+// 715  Red Gemstone     300z
+// 716  Blue Gemstone    300z
+// 717  Trap             500z
+// 7135 Empty Bottle     500z
+// 7136 Empty Potion Bottle 500z
+// 523  Holy Water       100z
+// 521  Empty Bottle     200z
+
+// --- Equipment Upgrade Shop ---
+-	shop	solo_upgrade_shop	-1,984:50000,985:20000,756:10000,757:10000,6224:50000,6223:50000
+
+// Item IDs:
+// 984  Oridecon         50000z
+// 985  Elunium          20000z
+// 756  Rough Oridecon   10000z
+// 757  Rough Elunium    10000z
+// 6224 Enriched Oridecon 50000z
+// 6223 Enriched Elunium  50000z
+
+// --- Misc Supplies Shop ---
+-	shop	solo_misc_shop	-1,601:75,602:250,12210:1000,7621:1000,6152:5000,611:200,12103:500
+
+// Item IDs:
+// 601  Wing of Fly      75z
+// 602  Wing of Butterfly 250z
+// 12210 Box of Gloom    1000z
+// 7621 Token of Siegfried 1000z
+// 6152 Emergency Call   5000z
+// 611  Yggdrasil Berry  200z
+// 12103 Bubble Gum      500z
