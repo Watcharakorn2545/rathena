@@ -3,7 +3,7 @@
 // Located in Prontera, near center
 // =====================================================
 
-prontera,152,190,5	script	Magic Buffer	4_M_WIZARD,{
+prontera,152,190,5	script	Magic Buffer	114,{
 	mes "[Magic Buffer]";
 	mes "Greetings, brave solo adventurer!";
 	mes "I can bestow powerful support magic upon you.";

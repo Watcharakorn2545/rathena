@@ -59,7 +59,7 @@ L_END:
 }
 
 // --- Healing Items Shop ---
--	shop	solo_heal_shop	-1,501:10,502:30,503:300,504:1000,505:3500,547:70,528:700,529:1000,11567:300
+-	shop	solo_heal_shop	-1,501:-1,502:-1,503:-1,504:-1,505:-1,547:-1,528:-1,529:-1,11567:-1
 
 // Item IDs:
 // 501  Red Potion       10z
@@ -73,7 +73,7 @@ L_END:
 // 11567 HP Increase Potion (Small) 300z
 
 // --- Buff Items Shop ---
--	shop	solo_buff_shop	-1,645:2000,656:3000,657:3000,12016:10000,12215:1000,12208:1000,12210:1000
+-	shop	solo_buff_shop	-1,645:-1,656:-1,657:-1,12016:-1,12215:-1,12208:-1,12210:-1
 
 // Item IDs:
 // 645  Anodyne          2000z
@@ -85,7 +85,7 @@ L_END:
 // 12210 Box of Gloom    1000z
 
 // --- Ammunition Shop ---
--	shop	solo_ammo_shop	-1,1750:3,1751:3,1752:3,1753:3,1754:3,1755:3,1770:5,13200:3
+-	shop	solo_ammo_shop	-1,1750:-1,1751:-1,1752:-1,1753:-1,1754:-1,1755:-1,1770:-1,13200:-1
 
 // Item IDs:
 // 1750-1755 Various Arrows  3z each
@@ -93,7 +93,7 @@ L_END:
 // 13200 Silver Bullet   3z
 
 // --- Gemstones & Catalysts Shop ---
--	shop	solo_gem_shop	-1,714:300,715:300,716:300,717:500,7135:500,7136:500,523:100,521:200
+-	shop	solo_gem_shop	-1,714:-1,715:-1,716:-1,717:-1,7135:-1,7136:-1,523:-1,521:-1
 
 // Item IDs:
 // 714  Yellow Gemstone  300z
@@ -106,7 +106,7 @@ L_END:
 // 521  Empty Bottle     200z
 
 // --- Equipment Upgrade Shop ---
--	shop	solo_upgrade_shop	-1,984:50000,985:20000,756:10000,757:10000,6224:50000,6223:50000
+-	shop	solo_upgrade_shop	-1,984:-1,985:-1,756:-1,757:-1,6224:-1,6223:-1
 
 // Item IDs:
 // 984  Oridecon         50000z
@@ -117,7 +117,7 @@ L_END:
 // 6223 Enriched Elunium  50000z
 
 // --- Misc Supplies Shop ---
--	shop	solo_misc_shop	-1,601:75,602:250,12210:1000,7621:1000,6152:5000,611:200,12103:500
+-	shop	solo_misc_shop	-1,601:-1,602:-1,12210:-1,7621:-1,6152:5000,611:-1,12103:-1
 
 // Item IDs:
 // 601  Wing of Fly      75z

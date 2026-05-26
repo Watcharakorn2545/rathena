@@ -3,7 +3,7 @@
 // Located in Prontera, near center
 // =====================================================
 
-prontera,160,185,5	script	Zeny Banker	4_M_BANKER,{
+prontera,160,185,5	script	Zeny Banker	46,{
 	mes "[Zeny Banker]";
 	mes "Welcome! As a solo adventurer,";
 	mes "you deserve some financial support.";
