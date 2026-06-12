@@ -1,64 +1,129 @@
 // =====================================================
-// Solo Buffer — Free support buffs for solo play
+// Solo Magic Buffer — Full support buffs for solo play
 // Located in Prontera, near center
+// Implements: 1-hour durations, Zeny cost, Soul Link
 // =====================================================
 
 prontera,152,190,5	script	Magic Buffer	114,{
+
+	// ---- Configuration ----
+	.@Duration = 3600000;	// 1 hour in milliseconds
+	.@Price = BaseLevel * 15;	// Zeny cost scales with level
+
 	mes "[Magic Buffer]";
 	mes "Greetings, brave solo adventurer!";
 	mes "I can bestow powerful support magic upon you.";
+	mes " ";
+	mes "^FF0000Cost: " + callfunc("F_InsertComma",.@Price) + " Zeny^000000";
+	mes "^0000FFDuration: 1 hour^000000";
 	next;
 	menu "Full Buff Package",L_FULL,
 		"Offensive Buffs Only",L_OFFENSE,
 		"Defensive Buffs Only",L_DEFENSE,
+		"Soul Link Only",L_SOULLINK,
 		"Remove All Buffs",L_REMOVE,
 		"No thanks",L_END;
 
 L_FULL:
-	// Support buffs
-	sc_start SC_BLESSING,600000,10;
-	sc_start SC_INCREASEAGI,600000,10;
-	sc_start SC_GLORIA,600000,5;
-	sc_start SC_MAGNIFICAT,600000,5;
-	sc_start SC_IMPOSITIO,600000,5;
-	sc_start SC_SUFFRAGIUM,600000,3;
-	// Defensive buffs
-	sc_start SC_ANGELUS,600000,10;
-	sc_start SC_ASSUMPTIO,600000,5;
-	sc_start SC_KYRIE,600000,10;
+	if (Zeny < .@Price) {
+		mes "[Magic Buffer]";
+		mes "You don't have enough Zeny.";
+		mes "You need ^FF0000" + callfunc("F_InsertComma",.@Price) + " Zeny^000000.";
+		close;
+	}
+	Zeny -= .@Price;
+	// Support buffs (1 hour)
+	specialeffect2 EF_INCAGILITY;
+	sc_start SC_INCREASEAGI,.@Duration,10;
+	specialeffect2 EF_BLESSING;
+	sc_start SC_BLESSING,.@Duration,10;
+	sc_start SC_GLORIA,.@Duration,5;
+	sc_start SC_MAGNIFICAT,.@Duration,5;
+	sc_start SC_IMPOSITIO,.@Duration,5;
+	sc_start SC_SUFFRAGIUM,.@Duration,3;
+	// Defensive buffs (1 hour)
+	sc_start SC_ANGELUS,.@Duration,10;
+	sc_start SC_ASSUMPTIO,.@Duration,5;
+	sc_start SC_KYRIE,.@Duration,10;
+	// Extra utility buffs
+	sc_start SC_ENDURE,.@Duration,10;
+	sc_start SC_WINDWALK,.@Duration,10;
 	// Healing
 	percentheal 100,100;
+	// Soul Link (job-based)
+	callfunc "F_BufferSoulLink",.@Duration;
 	mes "[Magic Buffer]";
 	mes "Full buff package applied!";
-	mes "Blessing, AGI UP, Gloria, Magnificat,";
-	mes "Imposito Manus, Suffragium,";
-	mes "Angelus, Assumptio, Kyrie Eleison";
 	mes " ";
-	mes "^0000FFDuration: 10 minutes^000000";
+	mes "^0055FFSupport:^000000 Blessing, AGI UP, Gloria,";
+	mes "Magnificat, Imposito Manus, Suffragium";
+	mes "^0055FFDefense:^000000 Angelus, Assumptio, Kyrie,";
+	mes "Endure, Wind Walker";
+	mes "^0055FFSpirit:^000000 Soul Link (class-matched)";
+	mes " ";
+	mes "^0000FFDuration: 1 hour^000000";
 	mes "HP and SP fully restored!";
 	close;
 
 L_OFFENSE:
-	sc_start SC_BLESSING,600000,10;
-	sc_start SC_INCREASEAGI,600000,10;
-	sc_start SC_IMPOSITIO,600000,5;
-	sc_start SC_SUFFRAGIUM,600000,3;
+	if (Zeny < .@Price) {
+		mes "[Magic Buffer]";
+		mes "You don't have enough Zeny.";
+		mes "You need ^FF0000" + callfunc("F_InsertComma",.@Price) + " Zeny^000000.";
+		close;
+	}
+	Zeny -= .@Price;
+	specialeffect2 EF_INCAGILITY;
+	sc_start SC_INCREASEAGI,.@Duration,10;
+	specialeffect2 EF_BLESSING;
+	sc_start SC_BLESSING,.@Duration,10;
+	sc_start SC_IMPOSITIO,.@Duration,5;
+	sc_start SC_SUFFRAGIUM,.@Duration,3;
+	sc_start SC_GLORIA,.@Duration,5;
+	sc_start SC_WINDWALK,.@Duration,10;
 	percentheal 100,100;
+	callfunc "F_BufferSoulLink",.@Duration;
 	mes "[Magic Buffer]";
 	mes "Offensive buffs applied!";
-	mes "Blessing, AGI UP, Imposito, Suffragium";
+	mes "Blessing, AGI UP, Imposito, Suffragium,";
+	mes "Gloria, Wind Walker, Soul Link";
 	mes "HP and SP fully restored!";
 	close;
 
 L_DEFENSE:
-	sc_start SC_ANGELUS,600000,10;
-	sc_start SC_ASSUMPTIO,600000,5;
-	sc_start SC_KYRIE,600000,10;
-	sc_start SC_GLORIA,600000,5;
+	if (Zeny < .@Price) {
+		mes "[Magic Buffer]";
+		mes "You don't have enough Zeny.";
+		mes "You need ^FF0000" + callfunc("F_InsertComma",.@Price) + " Zeny^000000.";
+		close;
+	}
+	Zeny -= .@Price;
+	sc_start SC_ANGELUS,.@Duration,10;
+	sc_start SC_ASSUMPTIO,.@Duration,5;
+	sc_start SC_KYRIE,.@Duration,10;
+	sc_start SC_ENDURE,.@Duration,10;
+	sc_start SC_GLORIA,.@Duration,5;
 	percentheal 100,100;
+	callfunc "F_BufferSoulLink",.@Duration;
 	mes "[Magic Buffer]";
 	mes "Defensive buffs applied!";
-	mes "Angelus, Assumptio, Kyrie, Gloria";
+	mes "Angelus, Assumptio, Kyrie, Endure,";
+	mes "Gloria, Soul Link";
+	mes "HP and SP fully restored!";
+	close;
+
+L_SOULLINK:
+	if (Zeny < .@Price / 2) {
+		mes "[Magic Buffer]";
+		mes "You don't have enough Zeny.";
+		mes "You need ^FF0000" + callfunc("F_InsertComma",.@Price / 2) + " Zeny^000000.";
+		close;
+	}
+	Zeny -= .@Price / 2;
+	callfunc "F_BufferSoulLink",.@Duration;
+	percentheal 100,100;
+	mes "[Magic Buffer]";
+	mes "Soul Link applied based on your class!";
 	mes "HP and SP fully restored!";
 	close;
 
@@ -72,4 +137,59 @@ L_END:
 	mes "[Magic Buffer]";
 	mes "Return when you need magical support!";
 	close;
+}
+
+
+// =====================================================
+// Soul Link Function — Uses BaseJob for clean matching
+// =====================================================
+function	script	F_BufferSoulLink	{
+	.@dur = getarg(0);
+	.@bj = BaseJob;
+
+	// Swordsman line
+	if (.@bj == JOB_KNIGHT || .@bj == JOB_LORD_KNIGHT) {
+		sc_start SC_SPIRIT,.@dur,5,SL_KNIGHT;
+	} else if (.@bj == JOB_CRUSADER || .@bj == JOB_PALADIN) {
+		sc_start SC_SPIRIT,.@dur,5,SL_CRUSADER;
+	}
+	// Mage line
+	else if (.@bj == JOB_WIZARD || .@bj == JOB_HIGH_WIZARD) {
+		sc_start SC_SPIRIT,.@dur,5,SL_WIZARD;
+	} else if (.@bj == JOB_SAGE || .@bj == JOB_PROFESSOR) {
+		sc_start SC_SPIRIT,.@dur,5,SL_SAGE;
+	}
+	// Archer line
+	else if (.@bj == JOB_HUNTER || .@bj == JOB_SNIPER) {
+		sc_start SC_SPIRIT,.@dur,5,SL_HUNTER;
+	} else if (.@bj == JOB_BARD || .@bj == JOB_CLOWN || .@bj == JOB_DANCER || .@bj == JOB_GYPSY) {
+		sc_start SC_SPIRIT,.@dur,5,SL_BARDDANCER;
+	}
+	// Acolyte line
+	else if (.@bj == JOB_PRIEST || .@bj == JOB_HIGH_PRIEST) {
+		sc_start SC_SPIRIT,.@dur,5,SL_PRIEST;
+	} else if (.@bj == JOB_MONK || .@bj == JOB_CHAMPION) {
+		sc_start SC_SPIRIT,.@dur,5,SL_MONK;
+	}
+	// Merchant line
+	else if (.@bj == JOB_BLACKSMITH || .@bj == JOB_WHITESMITH) {
+		sc_start SC_SPIRIT,.@dur,5,SL_BLACKSMITH;
+	} else if (.@bj == JOB_ALCHEMIST || .@bj == JOB_CREATOR) {
+		sc_start SC_SPIRIT,.@dur,5,SL_ALCHEMIST;
+	}
+	// Thief line
+	else if (.@bj == JOB_ASSASSIN || .@bj == JOB_ASSASSIN_CROSS) {
+		sc_start SC_SPIRIT,.@dur,5,SL_ASSASSIN;
+	} else if (.@bj == JOB_ROGUE || .@bj == JOB_STALKER) {
+		sc_start SC_SPIRIT,.@dur,5,SL_ROGUE;
+	}
+	// Extended classes
+	else if (.@bj == JOB_STAR_GLADIATOR) {
+		sc_start SC_SPIRIT,.@dur,5,SL_STARGLADIATOR;
+	} else if (.@bj == JOB_SOUL_LINKER) {
+		sc_start SC_SPIRIT,.@dur,5,SL_SOULLINKER;
+	} else if (.@bj == JOB_SUPER_NOVICE) {
+		sc_start SC_SPIRIT,.@dur,5,SL_SUPERNOVICE;
+	}
+	return;
 }

@@ -1,31 +1,26 @@
 //===== rAthena Script =======================================
-//= Healer
+//= Healer & Magic Buffer
 //===== By: ==================================================
-//= Euphy
-//===== Current Version: =====================================
-//= 1.1
+//= Euphy / Customized for Solo Overhaul
 //===== Compatible With: =====================================
 //= rAthena Project
 //===== Description: =========================================
-//= Basic healer script.
-//===== Additional Comments: =================================
-//= 1.0 Initial script.
-//= 1.1 Aligned coordinates with @go.
+//= Basic healer script. Heals, charges zeny, and buffs.
 //============================================================
 
 -	script	Healer	-1,{
 
-	.@Price = 0;	// Zeny required for heal
-	.@Buffs = 0;	// Also buff players? (1: yes / 0: no)
+	.@Price = BaseLevel * 10;	// Balanced Zeny required for heal
+	.@Buffs = 1;	// Also buff players? (1: yes / 0: no)
 	.@Delay = 0;	// Heal delay, in seconds
 
 	if (@HD > gettimetick(2))
 		end;
 	if (.@Price) {
-		message strcharinfo(0), "Healing costs " + callfunc("F_InsertComma",.@Price) + " Zeny.";
+		message strcharinfo(0), "Healing and Buffs cost " + callfunc("F_InsertComma",.@Price) + " Zeny.";
 		if (Zeny < .@Price)
 			end;
-		if (select("^0055FFHeal^000000:^777777Cancel^000000") == 2)
+		if (select("^0055FFHeal & Buff^000000:^777777Cancel^000000") == 2)
 			end;
 		Zeny -= .@Price;
 	}
@@ -33,9 +28,44 @@
 	percentheal 100,100;
 	if (.@Buffs) {
 		specialeffect2 EF_INCAGILITY;
-		sc_start SC_INCREASEAGI,240000,10;
+		sc_start SC_INCREASEAGI,3600000,10;
 		specialeffect2 EF_BLESSING;
-		sc_start SC_BLESSING,240000,10;
+		sc_start SC_BLESSING,3600000,10;
+
+		// Apply class-appropriate Soul Linker spirit buff (Level 5, 1 hour)
+		.@c = Class;
+		if (.@c == JOB_KNIGHT || .@c == JOB_KNIGHT2 || .@c == JOB_LORD_KNIGHT || .@c == JOB_LORD_KNIGHT2 || .@c == JOB_RUNE_KNIGHT || .@c == JOB_RUNE_KNIGHT2 || .@c == JOB_RUNE_KNIGHT_T || .@c == JOB_RUNE_KNIGHT_T2 || .@c == JOB_DRAGON_KNIGHT || .@c == JOB_DRAGON_KNIGHT2 || .@c == JOB_BABY_KNIGHT || .@c == JOB_BABY_KNIGHT2 || .@c == JOB_BABY_RUNE_KNIGHT || .@c == JOB_BABY_RUNE_KNIGHT2) {
+			sc_start SC_SPIRIT,3600000,5,SL_KNIGHT;
+		} else if (.@c == JOB_CRUSADER || .@c == JOB_CRUSADER2 || .@c == JOB_PALADIN || .@c == JOB_PALADIN2 || .@c == JOB_ROYAL_GUARD || .@c == JOB_ROYAL_GUARD2 || .@c == JOB_ROYAL_GUARD_T || .@c == JOB_ROYAL_GUARD_T2 || .@c == JOB_IMPERIAL_GUARD || .@c == JOB_IMPERIAL_GUARD2 || .@c == JOB_BABY_CRUSADER || .@c == JOB_BABY_CRUSADER2 || .@c == JOB_BABY_ROYAL_GUARD || .@c == JOB_BABY_ROYAL_GUARD2) {
+			sc_start SC_SPIRIT,3600000,5,SL_CRUSADER;
+		} else if (.@c == JOB_WIZARD || .@c == JOB_HIGH_WIZARD || .@c == JOB_WARLOCK || .@c == JOB_WARLOCK_T || .@c == JOB_ARCH_MAGE || .@c == JOB_BABY_WIZARD || .@c == JOB_BABY_WARLOCK) {
+			sc_start SC_SPIRIT,3600000,5,SL_WIZARD;
+		} else if (.@c == JOB_SAGE || .@c == JOB_PROFESSOR || .@c == JOB_SORCERER || .@c == JOB_SORCERER_T || .@c == JOB_ELEMENTAL_MASTER || .@c == JOB_BABY_SAGE || .@c == JOB_BABY_SORCERER) {
+			sc_start SC_SPIRIT,3600000,5,SL_SAGE;
+		} else if (.@c == JOB_HUNTER || .@c == JOB_SNIPER || .@c == JOB_RANGER || .@c == JOB_RANGER_T || .@c == JOB_WINDHAWK || .@c == JOB_WINDHAWK2 || .@c == JOB_BABY_HUNTER || .@c == JOB_BABY_RANGER || .@c == JOB_BABY_RANGER2) {
+			sc_start SC_SPIRIT,3600000,5,SL_HUNTER;
+		} else if (.@c == JOB_BARD || .@c == JOB_CLOWN || .@c == JOB_MINSTREL || .@c == JOB_MINSTREL_T || .@c == JOB_TROUBADOUR || .@c == JOB_BABY_BARD || .@c == JOB_BABY_MINSTREL ||
+		           .@c == JOB_DANCER || .@c == JOB_GYPSY || .@c == JOB_WANDERER || .@c == JOB_WANDERER_T || .@c == JOB_TROUVERE || .@c == JOB_BABY_DANCER || .@c == JOB_BABY_WANDERER) {
+			sc_start SC_SPIRIT,3600000,5,SL_BARDDANCER;
+		} else if (.@c == JOB_PRIEST || .@c == JOB_HIGH_PRIEST || .@c == JOB_ARCH_BISHOP || .@c == JOB_ARCH_BISHOP_T || .@c == JOB_CARDINAL || .@c == JOB_BABY_PRIEST || .@c == JOB_BABY_ARCH_BISHOP) {
+			sc_start SC_SPIRIT,3600000,5,SL_PRIEST;
+		} else if (.@c == JOB_MONK || .@c == JOB_CHAMPION || .@c == JOB_SURA || .@c == JOB_SURA_T || .@c == JOB_INQUISITOR || .@c == JOB_BABY_MONK || .@c == JOB_BABY_SURA) {
+			sc_start SC_SPIRIT,3600000,5,SL_MONK;
+		} else if (.@c == JOB_BLACKSMITH || .@c == JOB_WHITESMITH || .@c == JOB_MECHANIC || .@c == JOB_MECHANIC2 || .@c == JOB_MECHANIC_T || .@c == JOB_MECHANIC_T2 || .@c == JOB_MEISTER || .@c == JOB_MEISTER2 || .@c == JOB_BABY_BLACKSMITH || .@c == JOB_BABY_MECHANIC || .@c == JOB_BABY_MECHANIC2) {
+			sc_start SC_SPIRIT,3600000,5,SL_BLACKSMITH;
+		} else if (.@c == JOB_ALCHEMIST || .@c == JOB_CREATOR || .@c == JOB_GENETIC || .@c == JOB_GENETIC_T || .@c == JOB_BIOLO || .@c == JOB_BABY_ALCHEMIST || .@c == JOB_BABY_GENETIC) {
+			sc_start SC_SPIRIT,3600000,5,SL_ALCHEMIST;
+		} else if (.@c == JOB_ASSASSIN || .@c == JOB_ASSASSIN_CROSS || .@c == JOB_GUILLOTINE_CROSS || .@c == JOB_GUILLOTINE_CROSS_T || .@c == JOB_SHADOW_CROSS || .@c == JOB_BABY_ASSASSIN || .@c == JOB_BABY_GUILLOTINE_CROSS) {
+			sc_start SC_SPIRIT,3600000,5,SL_ASSASSIN;
+		} else if (.@c == JOB_ROGUE || .@c == JOB_STALKER || .@c == JOB_SHADOW_CHASER || .@c == JOB_SHADOW_CHASER_T || .@c == JOB_ABYSS_CHASER || .@c == JOB_BABY_ROGUE || .@c == JOB_BABY_SHADOW_CHASER) {
+			sc_start SC_SPIRIT,3600000,5,SL_ROGUE;
+		} else if (.@c == JOB_STAR_GLADIATOR || .@c == JOB_STAR_GLADIATOR2 || .@c == JOB_STAR_EMPEROR || .@c == JOB_STAR_EMPEROR2 || .@c == JOB_SKY_EMPEROR || .@c == JOB_SKY_EMPEROR2 || .@c == JOB_BABY_STAR_GLADIATOR || .@c == JOB_BABY_STAR_GLADIATOR2 || .@c == JOB_BABY_STAR_EMPEROR || .@c == JOB_BABY_STAR_EMPEROR2) {
+			sc_start SC_SPIRIT,3600000,5,SL_STARGLADIATOR;
+		} else if (.@c == JOB_SOUL_LINKER || .@c == JOB_SOUL_REAPER || .@c == JOB_SOUL_ASCETIC || .@c == JOB_BABY_SOUL_LINKER || .@c == JOB_BABY_SOUL_REAPER) {
+			sc_start SC_SPIRIT,3600000,5,SL_SOULLINKER;
+		} else if (.@c == JOB_SUPER_NOVICE || .@c == JOB_SUPER_NOVICE_E || .@c == JOB_HYPER_NOVICE || .@c == JOB_SUPER_BABY || .@c == JOB_SUPER_BABY_E) {
+			sc_start SC_SPIRIT,3600000,5,SL_SUPERNOVICE;
+		}
 	}
 	if (.@Delay)
 		@HD = gettimetick(2) + .@Delay;
@@ -55,7 +85,7 @@ einbroch,57,202,6	duplicate(Healer)	Healer#einbr	909
 geffen,115,72,6	duplicate(Healer)	Healer#gef	909
 gonryun,156,122,6	duplicate(Healer)	Healer#gon	909
 hugel,89,150,6	duplicate(Healer)	Healer#hug	909
-izlude,121,150,6	duplicate(Healer)	Healer#izl	909	//Pre-RE: (125,118)
+izlude,121,150,6	duplicate(Healer)	Healer#izl	909
 jawaii,250,139,4	duplicate(Healer)	Healer#jaw	909
 lighthalzen,152,100,6	duplicate(Healer)	Healer#lhz	909
 louyang,226,103,4	duplicate(Healer)	Healer#lou	909

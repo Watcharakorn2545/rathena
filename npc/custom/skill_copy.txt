@@ -1,0 +1,168 @@
+//===== rAthena Script =======================================
+//= Rogue Skill Copy Master
+//===== Description: =========================================
+//= Instant skill copier for Plagiarism and Reproduce skills
+//============================================================
+
+prontera,164,195,5	script	Skill Copy Master	114,{
+	mes "[Skill Copy Master]";
+	mes "Hello! I can copy skills directly into your memory if you are a Rogue-derived class.";
+	next;
+
+	// Check if player is a Rogue-derived class
+	.@c = Class;
+	if (.@c != JOB_ROGUE && .@c != JOB_STALKER && .@c != JOB_SHADOW_CHASER && .@c != JOB_SHADOW_CHASER_T && .@c != JOB_ABYSS_CHASER &&
+	    .@c != JOB_BABY_ROGUE && .@c != JOB_BABY_SHADOW_CHASER) {
+		mes "[Skill Copy Master]";
+		mes "I only help Rogues, Stalkers, Shadow Chasers, and Abyss Chasers who want to copy skills.";
+		close;
+	}
+
+	.@plag_lv = getskilllv(RG_PLAGIARISM);
+	.@repr_lv = getskilllv(SC_REPRODUCE);
+
+	if (.@plag_lv <= 0 && .@repr_lv <= 0) {
+		mes "[Skill Copy Master]";
+		mes "You must learn ^0000FFPlagiarism^000000 or ^0000FFReproduce^000000 first before I can copy skills for you.";
+		close;
+	}
+
+L_Menu:
+	mes "[Skill Copy Master]";
+	mes "What would you like to do?";
+	next;
+	
+	// Dynamically build the menu options based on what skills the player has learned
+	.@menu$ = "";
+	if (.@plag_lv > 0)
+		.@menu$ += "Copy Skill via Plagiarism:";
+	if (.@repr_lv > 0)
+		.@menu$ += "Copy Skill via Reproduce:";
+	.@menu$ += "Reset Copied Skills:Exit";
+
+	switch (select(.@menu$)) {
+		case 1:
+			if (.@plag_lv > 0)
+				goto L_Plagiarism;
+			else
+				goto L_Reproduce;
+		case 2:
+			if (.@plag_lv > 0 && .@repr_lv > 0)
+				goto L_Reproduce;
+			else
+				goto L_Reset;
+		case 3:
+			if (.@plag_lv > 0 && .@repr_lv > 0)
+				goto L_Reset;
+			else
+				close;
+		case 4:
+			close;
+	}
+
+L_Plagiarism:
+	mes "[Skill Copy Master]";
+	mes "Which skill would you like to copy into ^0000FFPlagiarism^000000?";
+	mes "(Copy will be set to level " + .@plag_lv + ")";
+	next;
+
+	// List useful plagiarism skills
+	switch (select(
+		"Bowling Bash (Knight):" +
+		"Raging Trifecta Blow (Monk):" +
+		"Heal (Acolyte):" +
+		"Magnus Exorcismus (Priest):" +
+		"Double Strafe (Archer):" +
+		"Shield Charge (Crusader):" +
+		"Frost Diver (Mage):" +
+		"Bash (Swordman):" +
+		"Go Back"
+	)) {
+		case 1: plagiarizeskill(KN_BOWLINGBASH, .@plag_lv); break;
+		case 2: plagiarizeskill(MO_TRIPLEATTACK, .@plag_lv); break;
+		case 3: plagiarizeskill(AL_HEAL, .@plag_lv); break;
+		case 4: plagiarizeskill(PR_MAGNUS, .@plag_lv); break;
+		case 5: plagiarizeskill(AC_DOUBLE, .@plag_lv); break;
+		case 6: plagiarizeskill(CR_SHIELDCHARGE, .@plag_lv); break;
+		case 7: plagiarizeskill(MG_FROSTDIVER, .@plag_lv); break;
+		case 8: plagiarizeskill(SM_BASH, .@plag_lv); break;
+		case 9: goto L_Menu;
+	}
+	
+	mes "[Skill Copy Master]";
+	mes "Skill copied successfully!";
+	close;
+
+L_Reproduce:
+	mes "[Skill Copy Master]";
+	mes "Which 3rd class skill would you like to copy into ^0000FFReproduce^000000?";
+	mes "(Copy will be set to level " + .@repr_lv + ")";
+	next;
+
+	// List useful 3rd class skills for Reproduce
+	switch (select(
+		"Fatal Menace (Shadow Chaser):" +
+		"Triangle Shot (Shadow Chaser):" +
+		"Feint Bomb (Shadow Chaser):" +
+		"Duple Light (Arch Bishop):" +
+		"Wind Cutter (Rune Knight):" +
+		"Ignition Break (Rune Knight):" +
+		"Shield Press (Royal Guard):" +
+		"Earth Drive (Royal Guard):" +
+		"Tiger Cannon (Sura):" +
+		"Psychic Wave (Sorcerer):" +
+		"Go Back"
+	)) {
+		case 1: plagiarizeskill(SC_FATALMENACE, .@repr_lv); break;
+		case 2: plagiarizeskill(SC_TRIANGLESHOT, .@repr_lv); break;
+		case 3: plagiarizeskill(SC_FEINTBOMB, .@repr_lv); break;
+		case 4: plagiarizeskill(AB_DUPLELIGHT, .@repr_lv); break;
+		case 5: plagiarizeskill(RK_WINDCUTTER, .@repr_lv); break;
+		case 6: plagiarizeskill(RK_IGNITIONBREAK, .@repr_lv); break;
+		case 7: plagiarizeskill(LG_SHIELDPRESS, .@repr_lv); break;
+		case 8: plagiarizeskill(LG_EARTHDRIVE, .@repr_lv); break;
+		case 9: plagiarizeskill(TC_TIGERCANNON, .@repr_lv); break;
+		case 10: plagiarizeskill(SO_PSYCHIC_WAVE, .@repr_lv); break;
+		case 11: goto L_Menu;
+	}
+
+	mes "[Skill Copy Master]";
+	mes "Skill copied successfully!";
+	close;
+
+L_Reset:
+	mes "[Skill Copy Master]";
+	mes "Which copy slot would you like to reset?";
+	next;
+	switch (select("Reset Plagiarism:Reset Reproduce:Reset Both:Go Back")) {
+		case 1:
+			if (.@plag_lv > 0) {
+				plagiarizeskillreset(1);
+				mes "[Skill Copy Master]";
+				mes "Plagiarism slot reset.";
+			} else {
+				mes "[Skill Copy Master]";
+				mes "You do not have Plagiarism learned.";
+			}
+			break;
+		case 2:
+			if (.@repr_lv > 0) {
+				plagiarizeskillreset(2);
+				mes "[Skill Copy Master]";
+				mes "Reproduce slot reset.";
+			} else {
+				mes "[Skill Copy Master]";
+				mes "You do not have Reproduce learned.";
+			}
+			break;
+		case 3:
+			if (.@plag_lv > 0) plagiarizeskillreset(1);
+			if (.@repr_lv > 0) plagiarizeskillreset(2);
+			mes "[Skill Copy Master]";
+			mes "Both slots reset.";
+			break;
+		case 4:
+			goto L_Menu;
+	}
+	close;
+}
