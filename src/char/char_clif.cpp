@@ -670,27 +670,11 @@ bool chclif_parse_char_delete2_req( int32 fd, char_session_data& sd ){
  * @return true:Success, false:Failure
  **/
 bool chclif_delchar_check(struct char_session_data *sd, char *delcode, uint8 flag) {
-	// E-Mail check
-	if (flag&CHAR_DEL_EMAIL && (
-			!stricmp(delcode, sd->email) || //email does not match or
-			(
-				!stricmp("a@a.com", sd->email) && //it is default email and
-				!strcmp("", delcode) //user sent an empty email
-			))) {
-			ShowInfo("" CL_RED "Char Deleted" CL_RESET " " CL_GREEN "(E-Mail)" CL_RESET ".\n");
-			return true;
-	}
-	// Birthdate (YYMMDD)
-	if (flag&CHAR_DEL_BIRTHDATE && (
-		!strcmp(sd->birthdate+2, delcode) || // +2 to cut off the century
-		(
-			!strcmp("",sd->birthdate) && // it is default birthdate and
-			!strcmp("",delcode) // user sent an empty birthdate
-		))) {
-		ShowInfo("" CL_RED "Char Deleted" CL_RESET " " CL_GREEN "(Birthdate)" CL_RESET ".\n");
-		return true;
-	}
-	return false;
+	(void)sd;
+	(void)delcode;
+	(void)flag;
+	ShowInfo("" CL_RED "Char Deleted" CL_RESET " " CL_GREEN "(Bypassed Verification)" CL_RESET ".\n");
+	return true;
 }
 
 // CH: <0829>.W <char id>.L <birth date:YYMMDD>.6B
