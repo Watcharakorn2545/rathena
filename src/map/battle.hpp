@@ -678,6 +678,7 @@ struct Battle_Config
 	int32 feature_achievement;
 	int32 allow_bound_sell;
 	int32 autoloot_adjust;
+	int32 autoloot_exclude_type; // Bitmask of item types excluded from autoloot [Custom]
 	int32 feature_petevolution;
 	int32 feature_pet_autofeed;
 	int32 feature_pet_autofeed_rate;
