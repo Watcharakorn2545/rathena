@@ -16,10 +16,10 @@ void SkillRampageBlaster::calculateSkillRatio(const Damage* wd, const block_list
 	const status_change* tsc = status_get_sc(target);
 
 	if (tsc && tsc->getSCE(SC_EARTHSHAKER)) {
-		skillratio += 1400 + 550 * skill_lv;
+		skillratio += 1400 + 550 * skill_lv + 250;
 		RE_LVL_DMOD(120);
 	} else {
-		skillratio += 900 + 350 * skill_lv;
+		skillratio += 900 + 350 * skill_lv + 250;
 		RE_LVL_DMOD(150);
 	}
 

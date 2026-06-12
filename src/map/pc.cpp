@@ -3016,6 +3016,30 @@ uint16 pc_getpercentweight(const map_session_data& sd, uint32 weight)
 	return static_cast<uint16>(weight * 100 / std::max<uint32>(sd.max_weight, 1));
 }
 
+int32 pc_count_active_summons(const map_session_data* sd)
+{
+	if (!sd) return 0;
+	int32 count = 0;
+	bool has_falcon = false;
+	bool has_hawk = false;
+	bool has_warg = false;
+
+	if (pc_isfalcon(sd)) {
+		if (pc_checkskill(sd, WH_HAWK_M) > 0)
+			has_hawk = true;
+		else
+			has_falcon = true;
+	}
+	if (pc_iswug(sd) || pc_isridingwug(sd)) {
+		has_warg = true;
+	}
+
+	if (has_falcon) count++;
+	if (has_hawk) count++;
+	if (has_warg) count++;
+	return count;
+}
+
 /*==========================================
  * Updates the weight status
  *------------------------------------------
@@ -5524,7 +5548,14 @@ bool pc_skill_plagiarism(map_session_data &sd, uint16 skill_id, uint16 skill_lv)
 
 	skill_lv = cap_value(skill_lv, 1, skill_get_max(skill_id));
 
-	int32 type = skill_isCopyable(&sd, skill_id);
+	s_skill_copyable copyable = skill_db.find(skill_id)->copyable;
+	int32 type = 0;
+	if ((copyable.option & SKILL_COPY_REPRODUCE) && pc_checkskill(&sd, SC_REPRODUCE) > 0) {
+		type = 2;
+	} else if ((copyable.option & SKILL_COPY_PLAGIARISM) && pc_checkskill(&sd, RG_PLAGIARISM) > 0) {
+		type = 1;
+	}
+
 	if (type == 1) {
 		pc_skill_plagiarism_reset(sd, type);
 
@@ -5538,7 +5569,7 @@ bool pc_skill_plagiarism(map_session_data &sd, uint16 skill_id, uint16 skill_lv)
 		pc_setglobalreg(&sd, add_str(SKILL_VAR_REPRODUCE), skill_id);
 		pc_setglobalreg(&sd, add_str(SKILL_VAR_REPRODUCE_LV), skill_lv);
 	} else {
-		ShowWarning("pc_skill_plagiarism: skill %d is not copyable.\n", skill_id);
+		ShowWarning("pc_skill_plagiarism: skill %d is not copyable or player lacks copying skill.\n", skill_id);
 		return false;
 	}
 
@@ -8346,7 +8377,7 @@ int32 pc_checkjoblevelup(map_session_data *sd)
 	status_calc_pc(sd,SCO_FORCE);
 	clif_misceffect( *sd, NOTIFYEFFECT_JOB_LEVEL_UP );
 	if (pc_checkskill(sd, SG_DEVIL) && ((sd->class_&MAPID_THIRDMASK) == MAPID_STAR_EMPEROR || pc_is_maxjoblv(sd)) )
-		clif_status_change(sd, EFST_DEVIL1, 1, 0, 0, 0, 1); //Permanent blind effect from SG_DEVIL.
+		clif_status_change(sd, EFST_DEVIL1, 1, 0, 0, 0, 8); //Permanent blind effect from SG_DEVIL.
 
 	npc_script_event( *sd, NPCE_JOBLVUP );
 
@@ -9171,7 +9202,7 @@ void pc_skillup(map_session_data *sd,uint16 skill_id)
 			if( skill_id == GN_REMODELING_CART ) /* cart weight info was updated by status_calc_pc */
 				clif_updatestatus(*sd,SP_CARTINFO);
 			if (pc_checkskill(sd, SG_DEVIL) && ((sd->class_&MAPID_THIRDMASK) == MAPID_STAR_EMPEROR || pc_is_maxjoblv(sd)))
-				clif_status_change(sd, EFST_DEVIL1, 1, 0, 0, 0, 1); //Permanent blind effect from SG_DEVIL.
+				clif_status_change(sd, EFST_DEVIL1, 1, 0, 0, 0, 8); //Permanent blind effect from SG_DEVIL.
 			if (!pc_has_permission(sd, PC_PERM_ALL_SKILL)) // may skill everything at any time anyways, and this would cause a huge slowdown
 				clif_skillinfoblock(*sd);
 		}

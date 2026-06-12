@@ -1468,6 +1468,7 @@ bool pc_adoption(map_session_data *p1_sd, map_session_data *p2_sd, map_session_d
 
 uint16 pc_getpercentweight(const map_session_data& sd, uint32 weight = 0);
 void pc_updateweightstatus(map_session_data& sd);
+int32 pc_count_active_summons(const map_session_data* sd);
 
 bool pc_addautobonus(std::vector<std::shared_ptr<s_autobonus>> &bonus, const char *script, int16 rate, uint32 dur, uint16 atk_type, const char *o_script, uint32 pos, bool onskill);
 void pc_exeautobonus(map_session_data &sd, std::vector<std::shared_ptr<s_autobonus>> *bonus, std::shared_ptr<s_autobonus> autobonus);

@@ -28,10 +28,10 @@ void SkillRagingQuadrupleBlow::calculateSkillRatio(const Damage* wd, const block
 #ifdef RENEWAL
 	const map_session_data* sd = BL_CAST(BL_PC, src);
 
-	base_skillratio += 150 + 50 * skill_lv;
+	base_skillratio += 150 + 50 * skill_lv + 100;
 	if (sd && sd->status.weapon == W_KNUCKLE)
 		base_skillratio *= 2;
 #else
-	base_skillratio += 50 + 50 * skill_lv;
+	base_skillratio += 50 + 50 * skill_lv + 100;
 #endif
 }

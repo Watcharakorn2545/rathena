@@ -20,11 +20,11 @@ void SkillTigerCannon::calculateSkillRatio(const Damage *wd, const block_list *s
 	uint32 sp = sstatus->max_sp * (5 + skill_lv) / 100;
 
 	if (wd->miscflag&8)
+		// Base_Damage = [((Caster consumed HP + SP) / 1) x Caster Base Level / 100] %
+		skillratio += -100 + (hp + sp);
+	else
 		// Base_Damage = [((Caster consumed HP + SP) / 2) x Caster Base Level / 100] %
 		skillratio += -100 + (hp + sp) / 2;
-	else
-		// Base_Damage = [((Caster consumed HP + SP) / 4) x Caster Base Level / 100] %
-		skillratio += -100 + (hp + sp) / 4;
 	RE_LVL_DMOD(100);
 
 	if (sc != nullptr && sc->hasSCE(SC_GT_REVITALIZE))

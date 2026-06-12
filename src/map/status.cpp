@@ -2388,7 +2388,7 @@ int32 status_base_amotion_pc(map_session_data* sd, struct status_data* status)
 	if ((skill_lv = pc_checkskill(sd,SA_ADVANCEDBOOK)) > 0 && sd->status.weapon == W_BOOK)
 		val += (skill_lv - 1) / 2 + 1;
 	if ((skill_lv = pc_checkskill(sd, SG_DEVIL)) > 0 && ((sd->class_&MAPID_THIRDMASK) == MAPID_STAR_EMPEROR || pc_is_maxjoblv(sd)))
-		val += 1 + skill_lv;
+		val += (1 + skill_lv) / 2;
 	if ((skill_lv = pc_checkskill(sd,GS_SINGLEACTION)) > 0 && (sd->status.weapon >= W_REVOLVER && sd->status.weapon <= W_GRENADE))
 		val += ((skill_lv + 1) / 2);
 	if (pc_isriding(sd))
@@ -3660,7 +3660,7 @@ bool status_calc_weight(map_session_data *sd, enum e_status_calc_weight_opt flag
 	sc = &sd->sc;
 	b_max_weight = sd->max_weight; // Store max weight for later comparison
 	b_weight = sd->weight; // Store current weight for later comparison
-	sd->max_weight = job_db.get_maxWeight(pc_mapid2jobid(sd->class_, sd->status.sex)) + sd->status.str * 300; // Recalculate max weight
+	sd->max_weight = 60000 + sd->status.str * 300; // Base weight set to 6000 (60000 units)
 
 	if (flag&CALCWT_ITEM) {
 		sd->weight = 0; // Reset current weight
@@ -4281,7 +4281,7 @@ int32 status_calc_pc_sub(map_session_data* sd, uint8 opt)
 	if((skill=pc_checkskill(sd,SA_DRAGONOLOGY))>0)
 		base_status->int_ += (skill+1)/2; // +1 INT / 2 lv
 	if((skill=pc_checkskill(sd,AC_OWL))>0)
-		base_status->dex += skill;
+		base_status->dex += skill * 2;
 	if((skill = pc_checkskill(sd,RA_RESEARCHTRAP))>0)
 		base_status->int_ += skill;
 	if (pc_checkskill(sd, SU_POWEROFLAND) > 0)
@@ -4444,6 +4444,8 @@ int32 status_calc_pc_sub(map_session_data* sd, uint8 opt)
 		sd->flee2_rate = 0;
 	if(sd->flee2_rate != 100)
 		base_status->flee2 = base_status->flee2 * sd->flee2_rate/100;
+	if ((skill = pc_checkskill(sd, TF_MISS)) > 0)
+		base_status->flee2 += skill * 10;
 
 	if (sd->patk_rate < 0)
 		sd->patk_rate = 0;
@@ -4507,6 +4509,8 @@ int32 status_calc_pc_sub(map_session_data* sd, uint8 opt)
 		base_status->hit += skill * 3;
 	if (sd->status.weapon == W_BOOK && (skill = pc_checkskill(sd, SKE_WAR_BOOK_MASTERY)) > 0)
 		base_status->hit += skill * 3;
+	if ((skill = pc_checkskill(sd, MO_IRONHAND)) > 0)
+		base_status->hit += skill * 2;
 
 	if ((skill = pc_checkskill(sd, SU_SOULATTACK)) > 0)
 		base_status->rhw.range += skill_get_range2(sd, SU_SOULATTACK, skill, true);
@@ -4515,7 +4519,7 @@ int32 status_calc_pc_sub(map_session_data* sd, uint8 opt)
 
 	// Absolute modifiers from passive skills
 	if((skill=pc_checkskill(sd,TF_MISS))>0)
-		base_status->flee += skill*(sd->class_&JOBL_2 && (sd->class_&MAPID_FIRSTMASK) == MAPID_THIEF? 4 : 3);
+		base_status->flee += 10 + skill*(sd->class_&JOBL_2 && (sd->class_&MAPID_FIRSTMASK) == MAPID_THIEF? 4 : 3);
 	if((skill=pc_checkskill(sd,MO_DODGE))>0)
 		base_status->flee += (skill*3) / 2;
 	if (pc_checkskill(sd, SU_POWEROFLIFE) > 0)
@@ -4529,7 +4533,7 @@ int32 status_calc_pc_sub(map_session_data* sd, uint8 opt)
 	if ((skill = pc_checkskill(sd, DC_DANCINGLESSON)) > 0)
 		base_status->cri += skill * 10;
 	if ((skill = pc_checkskill(sd, PR_MACEMASTERY)) > 0 && (sd->status.weapon == W_MACE || sd->status.weapon == W_2HMACE))
-		base_status->cri += skill * 10;
+		base_status->cri += 150 + skill * 20;
 #endif
 	if ((skill = pc_checkskill(sd, SHC_SHADOW_SENSE)) > 0)
 	{
@@ -4625,7 +4629,7 @@ int32 status_calc_pc_sub(map_session_data* sd, uint8 opt)
 	if((skill=pc_checkskill(sd,SA_ADVANCEDBOOK))>0 && sd->status.weapon == W_BOOK)
 		base_status->aspd_rate -= 5*skill;
 	if ((skill = pc_checkskill(sd,SG_DEVIL)) > 0 && ((sd->class_&MAPID_THIRDMASK) == MAPID_STAR_EMPEROR || pc_is_maxjoblv(sd)))
-		base_status->aspd_rate -= 30*skill;
+		base_status->aspd_rate -= 15*skill;
 	if((skill=pc_checkskill(sd,GS_SINGLEACTION))>0 &&
 		(sd->status.weapon >= W_REVOLVER && sd->status.weapon <= W_GRENADE))
 		base_status->aspd_rate -= ((skill+1)/2) * 10;
@@ -4935,6 +4939,10 @@ int32 status_calc_pc_sub(map_session_data* sd, uint8 opt)
 		if (sc->getSCE(SC_SHRIMP)) {
 			pc_bonus(sd, SP_ATK_RATE, sc->getSCE(SC_SHRIMP)->val2);
 			pc_bonus(sd, SP_MATK_RATE, sc->getSCE(SC_SHRIMP)->val2);
+		}
+		if (sc->getSCE(SC_PRESERVE)) {
+			pc_bonus(sd, SP_ATK_RATE, 20);
+			pc_bonus(sd, SP_MATK_RATE, 20);
 		}
 		if (sc->getSCE(SC_INCMATKRATE))
 			pc_bonus(sd, SP_MATK_RATE, sc->getSCE(SC_INCMATKRATE)->val1);
@@ -6395,11 +6403,11 @@ void status_calc_bl_main(block_list& bl, std::bitset<SCB_MAX> flag)
 #endif
 			// Absolute ASPD % modifiers
 			amotion = amotion * status->aspd_rate / 1000;
-			if (sd->ud.skilltimer != INVALID_TIMER && (skill_lv = pc_checkskill(sd, SA_FREECAST)) > 0)
+			if (false && sd->ud.skilltimer != INVALID_TIMER && (skill_lv = pc_checkskill(sd, SA_FREECAST)) > 0)
 #ifdef RENEWAL_ASPD
 				amotion = amotion * 5 * (skill_lv + 10) / 100;
 #else
-				amotion += (2000 - amotion) * ( 55 - 5 * ( skill_lv + 1 ) ) / 100; //Increases amotion to reduce ASPD to the corresponding absolute percentage for each level (overriding other adjustments)
+				amotion += (2000 - amotion) * ( 55 - 5 * ( skill_lv + 1 ) ) / 100;
 #endif
 
 #ifdef RENEWAL_ASPD
@@ -8041,7 +8049,7 @@ static uint16 status_calc_speed(block_list *bl, status_change *sc, int32 speed)
 		if( sd->ud.skill_id == LG_EXEEDBREAK )
 			speed_rate = 160 - 10 * sd->ud.skill_lv;
 		else
-			speed_rate = 175 - 5 * pc_checkskill(sd,SA_FREECAST);
+			speed_rate = 100 - 20 * pc_checkskill(sd,SA_FREECAST);
 	} else {
 		int32 val = 0;
 
@@ -8294,7 +8302,7 @@ static int16 status_calc_aspd(block_list *bl, status_change *sc, bool fixed)
 		if (sc->getSCE(SC_LONGING))
 			bonus -= sc->getSCE(SC_LONGING)->val2 / 10;
 #endif
-		if (sc->getSCE(SC_STEELBODY))
+		if (false && sc->getSCE(SC_STEELBODY))
 			bonus -= 25;
 		if (sc->getSCE(SC_DEFENDER))
 			bonus -= sc->getSCE(SC_DEFENDER)->val4 / 10;
@@ -8356,7 +8364,23 @@ static int16 status_calc_aspd(block_list *bl, status_change *sc, bool fixed)
 			if ((skill_lv = pc_checkskill(sd, BA_MUSICALLESSON)) > 0)
 				bonus += skill_lv;
 			if ((skill_lv = pc_checkskill(sd, RG_PLAGIARISM)) > 0)
+				bonus += 5 + (skill_lv - 1) * 10 / 9;
+			if ((skill_lv = pc_checkskill(sd, PR_MACEMASTERY)) > 0 && (sd->status.weapon == W_MACE || sd->status.weapon == W_2HMACE))
 				bonus += skill_lv;
+			if ((skill_lv = pc_checkskill(sd, MC_VENDING)) > 0)
+				bonus += skill_lv;
+			if ((skill_lv = pc_checkskill(sd, SA_ADVANCEDBOOK)) > 0 && sd->status.weapon == W_BOOK)
+				bonus += skill_lv;
+			if ((skill_lv = pc_checkskill(sd, MO_IRONHAND)) > 0 && (sd->status.weapon == W_FIST || sd->status.weapon == W_KNUCKLE))
+				bonus += skill_lv;
+			if ((skill_lv = pc_checkskill(sd, AC_OWL)) > 0)
+				bonus += skill_lv;
+			if (sd->weapontype2 != W_FIST) {
+				if ((skill_lv = pc_checkskill(sd, AS_RIGHT)) > 0)
+					bonus += skill_lv;
+				if ((skill_lv = pc_checkskill(sd, AS_LEFT)) > 0)
+					bonus += skill_lv;
+			}
 		}
 	}
 
@@ -8488,7 +8512,7 @@ static int16 status_calc_aspd_rate(block_list *bl, status_change *sc, int32 aspd
 	if(sc->getSCE(SC_LONGING))
 		aspd_rate += sc->getSCE(SC_LONGING)->val2;
 #endif
-	if(sc->getSCE(SC_STEELBODY))
+	if(false && sc->getSCE(SC_STEELBODY))
 		aspd_rate += 250;
 	if(sc->getSCE(SC_DEFENDER))
 		aspd_rate += sc->getSCE(SC_DEFENDER)->val4;
@@ -11125,7 +11149,7 @@ static bool status_change_start_post_delay(block_list* src, block_list* bl, sc_t
 			break;
 #endif
 		case SC_EXPLOSIONSPIRITS:
-			val2 = 75 + 25*val1; // Cri bonus
+			val2 = 175 + 25*val1; // Cri bonus
 			break;
 
 		case SC_ASPDPOTION0:
@@ -12454,7 +12478,7 @@ static bool status_change_start_post_delay(block_list* src, block_list* bl, sc_t
 			break;
 		case SC_FULL_THROTTLE:
 			val2 = ( val1 == 1 ? 6 : 6 - val1 );
-			val3 = 20; //+% AllStats
+			val3 = 100; //+% AllStats
 			tick_time = 1000;
 			val4 = tick / tick_time;
 			break;

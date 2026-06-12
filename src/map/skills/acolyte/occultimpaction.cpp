@@ -17,10 +17,10 @@ void SkillOccultImpaction::calculateSkillRatio(const Damage* wd, const block_lis
 #ifdef RENEWAL
 	const status_change* tsc = status_get_sc(target);
 
-	base_skillratio += -100 + 100 * skill_lv;
+	base_skillratio += -100 + 100 * skill_lv + 100 * skill_lv + status_get_lv(src) / 10;
 	if (tsc && tsc->getSCE(SC_BLADESTOP))
 		base_skillratio += base_skillratio / 2;
 #else
-	base_skillratio += 75 * skill_lv;
+	base_skillratio += 75 * skill_lv + 100 * skill_lv + status_get_lv(src) / 10;
 #endif
 }

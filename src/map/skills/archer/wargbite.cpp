@@ -15,6 +15,14 @@ void SkillWargBite::calculateSkillRatio(const Damage *wd, const block_list *src,
 	base_skillratio += 300 + 200 * skill_lv;
 	if (skill_lv == 5)
 		base_skillratio += 100;
+
+	const map_session_data* sd = BL_CAST(BL_PC, src);
+	if (sd) {
+		int32 active_summons = pc_count_active_summons(sd);
+		if (active_summons > 1) {
+			base_skillratio = base_skillratio * (100 - active_summons * 10) / 100;
+		}
+	}
 }
 
 void SkillWargBite::castendDamageId(block_list *src, block_list *target, uint16 skill_lv, t_tick tick, int32& flag) const {

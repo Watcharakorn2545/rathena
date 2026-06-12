@@ -12,7 +12,7 @@ SkillHowlingOfLion::SkillHowlingOfLion() : SkillImplRecursiveDamageSplash(SR_HOW
 }
 
 void SkillHowlingOfLion::calculateSkillRatio(const Damage *wd, const block_list *src, const block_list *target, uint16 skill_lv, int32 &skillratio, int32 mflag) const {
-	skillratio += -100 + 500 * skill_lv;
+	skillratio += -100 + 500 * skill_lv + 500;
 	RE_LVL_DMOD(100);
 }
 

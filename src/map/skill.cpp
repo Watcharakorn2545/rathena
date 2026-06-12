@@ -1348,7 +1348,7 @@ int32 skill_additional_effect( block_list* src, block_list *bl, uint16 skill_id,
 					int32 skill;
 
 					// Automatic trigger of Blitz Beat
-					if (pc_isfalcon(sd) && sd->status.weapon == W_BOW && (skill = pc_checkskill(sd, HT_BLITZBEAT)) > 0 && rnd() % 1000 <= sstatus->luk * 10 / 3 + 1) {
+					if (pc_isfalcon(sd) && sd->status.weapon == W_BOW && (skill = pc_checkskill(sd, HT_BLITZBEAT)) > 0 && rnd() % 1000 < sstatus->cri / 2) {
 						int32 rate;
 
 						if ((sd->class_ & MAPID_THIRDMASK) == MAPID_RANGER)
@@ -1360,12 +1360,9 @@ int32 skill_additional_effect( block_list* src, block_list *bl, uint16 skill_id,
 					}
 					// Automatic trigger of Warg Strike
 					if (pc_iswug(sd) && (skill = pc_checkskill(sd, RA_WUGSTRIKE)) > 0) {
-						int32 rate = sstatus->luk * 10 / 3 + 1;
+						int32 rate = sstatus->luk * 5;
 
-						if (pc_isfalcon(sd))
-							rate = rate / 3;
-
-						if (rnd() % 1000 <= rate)
+						if (rnd() % 1000 < rate)
 							skill_castend_damage_id(src, bl, RA_WUGSTRIKE, skill, tick, 0);
 					}
 					// Automatic trigger of Hawk Rush
@@ -1385,6 +1382,17 @@ int32 skill_additional_effect( block_list* src, block_list *bl, uint16 skill_id,
 							clif_skill_nodamage(src,*bl,TF_STEAL,skill);
 						else
 							clif_skill_fail( *sd, RG_SNATCHER );
+					}
+					// Mug Passive (Steal Coin)
+					if(dstmd && !dstmd->state.steal_coin_flag &&
+						(skill=pc_checkskill(sd,RG_STEALCOIN)) > 0 &&
+						(skill*15 + 55) > rnd()%1000) {
+						dstmd->state.steal_coin_flag = 1;
+						int32 target_lv = status_get_lv(bl);
+						int32 amount = rnd_value(8 * target_lv, 10 * target_lv);
+						amount += (skill * target_lv) / 10;
+						pc_getzeny(sd, amount, LOG_TYPE_STEAL);
+						clif_skill_nodamage(src, *bl, RG_STEALCOIN, amount);
 					}
 				}
 
@@ -7332,24 +7340,31 @@ int32 skill_unit_onplace_timer(skill_unit *unit, block_list *bl, t_tick tick)
 
 		case UNT_EPICLESIS:
 			++sg->val1; // Increment outside of the check to get the exact interval of the skill unit
-			if( bl->type == BL_PC && !battle_check_undead(tstatus->race, tstatus->def_ele) && tstatus->race != RC_DEMON ) {
-				if (sg->val1 % 3 == 0) { // Recover players every 3 seconds
-					int32 hp, sp;
+			if( bl->type == BL_PC || (bl->type == BL_MOB && (battle_check_undead(tstatus->race, tstatus->def_ele) || tstatus->race == RC_DEMON)) ) {
+				if (sg->val1 % 3 == 0) { // Recover players every 3 seconds or damage monsters
+					if (bl->type == BL_MOB && (battle_check_undead(tstatus->race, tstatus->def_ele) || tstatus->race == RC_DEMON)) {
+						status_data* sstatus = status_get_status_data(*ss);
+						int32 matk = (sstatus->matk_min + sstatus->matk_max) / 2;
+						int64 dmg = (int64)matk * sg->skill_lv * 15 / 10;
+						status_damage(ss, bl, dmg, 0, 0, 0, AB_EPICLESIS);
+					} else if (bl->type == BL_PC && !battle_check_undead(tstatus->race, tstatus->def_ele) && tstatus->race != RC_DEMON) {
+						int32 hp, sp;
 
-					switch( sg->skill_lv ) {
-						case 1: case 2: hp = 3; sp = 2; break;
-						case 3: case 4: hp = 4; sp = 3; break;
-						case 5: default: hp = 5; sp = 4; break;
+						switch( sg->skill_lv ) {
+							case 1: case 2: hp = 3; sp = 2; break;
+							case 3: case 4: hp = 4; sp = 3; break;
+							case 5: default: hp = 5; sp = 4; break;
+						}
+						hp = tstatus->max_hp * hp / 100;
+						sp = tstatus->max_sp * sp / 100;
+						if (tstatus->hp < tstatus->max_hp)
+							clif_skill_nodamage(unit, *bl, AL_HEAL, hp);
+						if (tstatus->sp < tstatus->max_sp)
+							clif_skill_nodamage(unit, *bl, MG_SRECOVERY, sp);
+						if (tsc && tsc->getSCE(SC_AKAITSUKI) && hp)
+							hp = ~hp + 1;
+						status_heal(bl, hp, sp, 3);
 					}
-					hp = tstatus->max_hp * hp / 100;
-					sp = tstatus->max_sp * sp / 100;
-					if (tstatus->hp < tstatus->max_hp)
-						clif_skill_nodamage(unit, *bl, AL_HEAL, hp);
-					if (tstatus->sp < tstatus->max_sp)
-						clif_skill_nodamage(unit, *bl, MG_SRECOVERY, sp);
-					if (tsc && tsc->getSCE(SC_AKAITSUKI) && hp)
-						hp = ~hp + 1;
-					status_heal(bl, hp, sp, 3);
 				}
 				if (sg->val1 % 5 == 0) { // Reveal hidden players every 5 seconds
 					// Doesn't remove Invisibility or Chase Walk.
@@ -8619,10 +8634,7 @@ bool skill_check_condition_castbegin( map_session_data& sd, uint16 skill_id, uin
 #endif
 		case AM_TWILIGHT2:
 		case AM_TWILIGHT3:
-			if (!party_skill_check(&sd, sd.status.party_id, skill_id, skill_lv)) {
-				clif_skill_fail( sd, skill_id );
-				return false;
-			}
+			// Bypassed party skill checks for solo play
 			break;
 		case SG_SUN_COMFORT:
 		case SG_MOON_COMFORT:
@@ -10860,10 +10872,17 @@ int32 skill_sit(map_session_data *sd, bool sitting)
 		return 0;
 
 	if (sitting) {
-		if (map_foreachinallrange(skill_sit_count, sd, range, BL_PC, flag) > 1)
-			map_foreachinallrange(skill_sit_in, sd, range, BL_PC, flag);
-	} else
+		map_foreachinallrange(skill_sit_in, sd, range, BL_PC, flag);
+	} else {
+		if (flag&1 && sd->state.gangsterparadise)
+			sd->state.gangsterparadise = 0;
+		if (flag&2 && sd->state.rest) {
+			sd->state.rest = 0;
+			status_calc_regen(sd, &sd->battle_status, &sd->regen);
+			status_calc_regen_rate(sd, &sd->regen, &sd->sc);
+		}
 		map_foreachinallrange(skill_sit_out, sd, range, BL_PC, flag, range);
+	}
 
 	return 0;
 }

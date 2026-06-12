@@ -12,10 +12,10 @@ SkillGlacierFist::SkillGlacierFist() : WeaponSkillImpl(CH_TIGERFIST) {
 
 void SkillGlacierFist::calculateSkillRatio(const Damage* wd, const block_list* src, const block_list* target, uint16 skill_lv, int32& skillratio, int32 mflag) const {
 #ifdef RENEWAL
-	skillratio += 400 + 150 * skill_lv;
+	skillratio += 400 + 150 * skill_lv + 100;
 	RE_LVL_DMOD(100);
 #else
-	skillratio += -60 + 100 * skill_lv;
+	skillratio += -60 + 100 * skill_lv + 100;
 #endif
 	if (const status_change* sc = status_get_sc(src); sc != nullptr && sc->getSCE(SC_GT_ENERGYGAIN))
 		skillratio += skillratio * 50 / 100;

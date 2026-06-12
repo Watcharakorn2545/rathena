@@ -4202,22 +4202,16 @@ static void battle_calc_skill_base_damage(struct Damage* wd, block_list *src,blo
 						ATK_ADDRATE(wd->damage, wd->damage2, sd->bonus.non_crit_atk_rate);
 					}
 				}
+#endif
 
-				if(sd->status.party_id && (skill=pc_checkskill(sd,TK_POWER)) > 0) {
-					if( (i = party_foreachsamemap(party_sub_count, sd, 0)) > 1 ) { // exclude the player himself [Inkfish]
-						// Reduce count by one (self) [Tydus1]
-						i -= 1; 
-						ATK_ADDRATE(wd->damage, wd->damage2, 2*skill*i);
-					}
-				}
-#else
 				if ((skill = pc_checkskill(sd, TK_POWER)) > 0) {
-					int32 dmg_bonus = 20 * skill;
+					int32 dmg_bonus = 12 * skill; // Default 2 * skill * 12 halved = 12 * skill
 
 					ATK_ADDRATE(wd->damage, wd->damage2, dmg_bonus);
+#ifdef RENEWAL
 					RE_ALLATK_ADDRATE(wd, dmg_bonus);
-				}
 #endif
+				}
 			}
 #ifndef RENEWAL
 			if (tsd != nullptr && tsd->bonus.crit_def_rate != 0 && !skill_id && (bflag & BDMG_CRIT)) {
@@ -4301,7 +4295,7 @@ static void battle_calc_multi_attack(struct Damage* wd, block_list *src,block_li
 					} // 12 % chance to attack 2 times.
 			}
 			wd->div_ = min(wd->div_,sd->inventory.u.items_inventory[i].amount);
-			sc->getSCE(SC_FEARBREEZE)->val4 = wd->div_-1;
+			sc->getSCE(SC_FEARBREEZE)->val4 = (wd->div_ + 1) / 2 - 1;
 			if (wd->div_ > 1)
 				wd->type = DMG_MULTI_HIT;
 		}
@@ -5887,9 +5881,16 @@ struct Damage battle_calc_magic_attack(block_list *src,block_list *target,uint16
 		switch (skill_id) {
 			case AL_HEAL:
 			case PR_BENEDICTIO:
-			case PR_SANCTUARY:
 			case AB_HIGHNESSHEAL:
 				ad.damage = skill_calc_heal(src, target, skill_id, skill_lv, false);
+				break;
+			case PR_SANCTUARY:
+				if (tstatus && (battle_check_undead(tstatus->race, tstatus->def_ele) || tstatus->race == RC_DEMON)) {
+					int32 matk = (sstatus->matk_min + sstatus->matk_max) / 2;
+					ad.damage = (int64)matk * skill_lv * 15 / 10;
+				} else {
+					ad.damage = skill_calc_heal(src, target, skill_id, skill_lv, false);
+				}
 				break;
 			case PR_ASPERSIO:
 				ad.damage = 40;
@@ -6383,6 +6384,24 @@ struct Damage battle_calc_misc_attack(block_list *src,block_list *target,uint16 
 				if(mflag > 1) //Autocasted Blitz
 					nk.set(NK_SPLASHSPLIT);
 #endif
+				if (sd) {
+					// BaseLevel percentage damage boost
+					md.damage = md.damage * (200 + status_get_lv(src)) / 200;
+
+					// Critical hit check
+					int32 crit_chance = (sstatus->cri - status_get_luk(target)) / 20;
+					if (rnd() % 100 < crit_chance) {
+						md.type = (md.div_ > 1) ? DMG_MULTI_HIT_CRITICAL : DMG_CRITICAL;
+						md.damage = md.damage * 140 / 100;
+					}
+
+					// Active summons count damage reduction
+					int32 active_summons = pc_count_active_summons(sd);
+					if (active_summons > 1) {
+						md.damage = md.damage * (100 - active_summons * 10) / 100;
+					}
+				}
+
 				if (skill_id == SN_FALCONASSAULT) {
 					//Div fix of Blitzbeat
 					DAMAGE_DIV_FIX2(md.damage, skill_get_num(HT_BLITZBEAT, 5));
@@ -7262,11 +7281,7 @@ enum damage_lv battle_weapon_attack(block_list* src, block_list* target, t_tick 
 	}
 
 	if(sd && (skillv = pc_checkskill(sd,MO_TRIPLEATTACK)) > 0) {
-#ifdef RENEWAL
-		int32 triple_rate = 30; //Base Rate
-#else
-		int32 triple_rate = 30 - skillv; //Base Rate
-#endif
+		int32 triple_rate = 20 + 3 * skillv;
 
 		if (sc && sc->getSCE(SC_SKILLRATE_UP) && sc->getSCE(SC_SKILLRATE_UP)->val1 == MO_TRIPLEATTACK) {
 			triple_rate+= triple_rate*(sc->getSCE(SC_SKILLRATE_UP)->val2)/100;

@@ -20,4 +20,7 @@ void SkillMagnusExorcismus::calculateSkillRatio(const Damage* wd, const block_li
 
 	if (battle_check_undead(tstatus->race, tstatus->def_ele) || tstatus->race == RC_DEMON)
 		base_skillratio += 30;
+
+	int32 lv = status_get_lv(src);
+	base_skillratio = base_skillratio * (1000 + lv) / 1000;
 }

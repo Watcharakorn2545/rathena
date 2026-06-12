@@ -23,6 +23,13 @@ void SkillHawkBoomerang::calculateSkillRatio(const Damage *wd, const block_list 
 	if (tstatus->race == RC_BRUTE || tstatus->race == RC_FISH)
 		skillratio += skillratio * 50 / 100;
 	RE_LVL_DMOD(100);
+
+	if (sd) {
+		int32 active_summons = pc_count_active_summons(sd);
+		if (active_summons > 1) {
+			skillratio = skillratio * (100 - active_summons * 10) / 100;
+		}
+	}
 }
 
 void SkillHawkBoomerang::castendDamageId(block_list *src, block_list *target, uint16 skill_lv, t_tick tick, int32& flag) const {

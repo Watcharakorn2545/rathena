@@ -20,6 +20,13 @@ void SkillHawkRush::calculateSkillRatio(const Damage *wd, const block_list *src,
 	if (sd)
 		skillratio += skillratio * pc_checkskill(sd, WH_NATUREFRIENDLY) / 10;
 	RE_LVL_DMOD(100);
+
+	if (sd) {
+		int32 active_summons = pc_count_active_summons(sd);
+		if (active_summons > 1) {
+			skillratio = skillratio * (100 - active_summons * 10) / 100;
+		}
+	}
 }
 
 void SkillHawkRush::castendDamageId(block_list *src, block_list *target, uint16 skill_lv, t_tick tick, int32& flag) const {

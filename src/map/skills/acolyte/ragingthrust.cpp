@@ -13,11 +13,12 @@ SkillRagingThrust::SkillRagingThrust() : WeaponSkillImpl(MO_COMBOFINISH) {
 void SkillRagingThrust::castendDamageId(block_list* src, block_list* target, uint16 skill_lv, t_tick tick, int32& flag) const {
 	status_change* sc = status_get_sc(src);
 
-	if (!(flag&1) && sc && sc->getSCE(SC_SPIRIT) && sc->getSCE(SC_SPIRIT)->val2 == SL_MONK)
-	{	//Becomes a splash attack when Soul Linked.
+	if (!(flag&1))
+	{
+		int32 range = (sc && sc->getSCE(SC_SPIRIT) && sc->getSCE(SC_SPIRIT)->val2 == SL_MONK) ? 3 : 2;
 		map_foreachinshootrange(skill_area_sub, target,
-			skill_get_splash(getSkillId(), skill_lv),BL_CHAR|BL_SKILL,
-			src,getSkillId(),skill_lv,tick, flag|BCT_ENEMY|1,
+			range, BL_CHAR|BL_SKILL,
+			src, getSkillId(), skill_lv, tick, flag|BCT_ENEMY|1,
 			skill_castend_damage_id);
 	} else
 		WeaponSkillImpl::castendDamageId(src, target, skill_lv, tick, flag);
@@ -27,9 +28,9 @@ void SkillRagingThrust::calculateSkillRatio(const Damage* wd, const block_list* 
 #ifdef RENEWAL
 	const status_data* sstatus = status_get_status_data(*src);
 
-	base_skillratio += 450 + 50 * skill_lv + sstatus->str; // !TODO: How does STR play a role?
+	base_skillratio += 450 + 50 * skill_lv + sstatus->str + 300;
 #else
-	base_skillratio += 140 + 60 * skill_lv;
+	base_skillratio += 140 + 60 * skill_lv + 300;
 #endif
 
 	if (const status_change* sc = status_get_sc(src); sc != nullptr && sc->getSCE(SC_GT_ENERGYGAIN))
